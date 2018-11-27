@@ -1,12 +1,15 @@
 import createAsyncAction from './createAsyncAction'
-import createActions from './createActions'
+import createActions     from './createActions'
+import AsyncStates       from './constants/AsyncStates'
 
 export default { 
     createAsyncAction, 
-    createActions 
+    createActions,
+    AsyncStates
 }
 
 export { 
     createAsyncAction, 
-    createActions 
+    createActions,
+    AsyncStates 
 }
