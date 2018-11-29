@@ -110,16 +110,8 @@ function createActions({ sliceNamespace, actions }) {
             }
         }
 
-        if(sliceNamespace == 'session') {
-            console.log('session.newState ->', newState);
-        }
-
         return newState;
     };
-
-    console.log('namespace ->', sliceNamespace);
-    console.log('asyncReducer ->', asyncReducer);
-    console.log('stateUpdateMap ->', stateUpdateMap);
 
     return { 
         actions : actionsCreated, 
