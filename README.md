@@ -8,7 +8,7 @@ a collection of utilities for streamlining modular Redux development by letting 
 1. [Installation](#installation)
 2. [Utilities](#utils)
 3. [Examples](#examples)
-4. [Important Note](#important-note)
+4. [Note](#important-note)
 
 
 ## Installation
@@ -39,10 +39,19 @@ An enum for four different possible asynchronous states, those being:
 ## Examples
 
 Below is an example of generating actions painlessly for
-logging in and logging out
+logging in and logging out.
 
+So lets say in our `actions.js` (part of our session ducks module at `[root]/modules/session/` folder),
+we wish to generate actions that hadnle our login state as well as track how the request is going. 
+
+We could do that via the following:
+
+
+**`modules/session/sessionActions.js`**
 ```
-import { createActions } from 'redux-wings'
+import { 
+    createActions 
+} from 'redux-wings'
 import api from 'my-app/api'
 import appHistory from 'utils/appHistory'
 
@@ -57,8 +66,9 @@ import appHistory from 'utils/appHistory'
 // reducer state to contain the new variable
 // at given state variable if necessary
 
-const { actions, reducers } = createActions({
-    'session' : [
+const { actions, asyncReducer } = createActions({
+    sliceNamespace : 'session',
+    actions : [
         {
             namespace : 'login',
             requestHandler ({ username, password }) {
@@ -79,34 +89,61 @@ const { actions, reducers } = createActions({
                     }));
             },
             stateVariable : 'loginState' // will cause reducers variable being output
-                                         // to attach AsyncStates to loginState in
-                                         // simple pure function (e.g. sub reducer)
+                                         // to attach AsyncStates to `loginState` in
+                                         // reducer for return object
         }, 
         'logout' // creates action dispatcher + "session/LOGOUT" type
     ]
 });
 
-// we now have access to all of the following! 😃
+// we now have access to all of the following! 
 
-const  { 
+const  {
     loginRequest,
     logout, 
     LOGIN_REQUEST,
     LOGIN_SUCCESS,
     LOGIN_ERROR,
-    LOGOUT
-} = actions;
+    LOGOUT,
+    asyncReducer 
+} = actions; 
+
+// async reducer will now also be available 
+// to easily plug in our loginState variable
+// functionality!
 ```
 
-Continuing the above example, when creating our store we can `compose` our
-new reducer functions to easily augment functionality.
+Continuing the above example, when combining our reducers using `combineReducers`, we can simply `compose` our reducers to easily augment functionality.
 
-[example needed]
+!Important Note: to properly process your existing state, the asyncReducer must be specified first
+(`compose` actually processes reducer arguments from right-to-left)
 
-## Important Note
+**`reducers.js`**
+```
+import { 
+    combineReducers, compose 
+} from 'redux'
+import session from './modules/session'
+import users from './modules/users'
+import misc from './modules/misc'
+
+// compose our session reducer to contain "loginState"
+// as defined in sessionActions.js
+
+const sessionReducer = compose(session.actions.asyncReducer, session.reducer);
+
+export default combineReducers({
+    session  : sessionReducer,
+    users    : users.reducer,
+    feedback : feedback.reducer
+});
+```
+
+
+## Note
 
 This is a new library. If you have any issues, please feel free to submit as I appreciate any feedback! P.R.s and discussion for changes are also welcome.
 
-Also it is well understood that the example could be way better 😅 (and there should be very explicit API documentation added)
+Also it is well understood that the example could be way better 😅 (and there should be very explicit API here as well soon)
 
 Thanks.

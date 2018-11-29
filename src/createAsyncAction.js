@@ -1,4 +1,6 @@
-import { toUpperSnakeCase } from './utils/nameConversions'
+import { 
+    toUpperSnakeCase 
+} from './utils/nameConversions'
 
 let actionVariants = [
     'REQUEST',
@@ -13,19 +15,19 @@ let actionVariants = [
  * 
  * @param {Object} param0
  * @param {String} param0.namespace
- * @param {String} param0.slice
+ * @param {String} param0.sliceNamespace
  * @param {function} param0.requestHandler 
  */
 function createAsyncAction ({ 
     actions, namespace, 
-    slice, requestHandler
+    sliceNamespace, requestHandler
  }) {
     let actionNsUC = toUpperSnakeCase(namespace);
 
     // populate namespaces for each variant
 
     actionVariants.forEach( variant => {
-        let actionType = `${slice}/${
+        let actionType = `${sliceNamespace}/${
             actionNsUC}_${variant}`;
         
         actions[`${actionNsUC}_${variant}`] = actionType;
