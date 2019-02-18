@@ -32,8 +32,8 @@ Check out an example in the next section.
 
 An enum for four different possible asynchronous states, those being:
 - `IDLE`
-- `LOADING` 
-- `LOADED` 
+- `PROCESSING` 
+- `SUCCESS` 
 - `ERROR`
 
 ## Examples

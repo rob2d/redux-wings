@@ -58,15 +58,15 @@ function createActions({ sliceNamespace, actions }) {
         // want to generate an action dispatcher
         // and namespace
         
-        else if(typeof asyncEntry == 'string'){
+        else if(typeof actionEntry == 'string'){
             const namespace = (
                 (typeof actionEntry == 'object') ? 
                 actionEntry.namespace : actionEntry
             );
 
             const actionNSUC = toUpperSnakeCase(namespace);
-            params[actionNSUC] = `${sliceNamespace}/${actionNSUC}}`;
-            params[namespace] = payload => ({ 
+            actionsCreated[actionNSUC] = `${sliceNamespace}/${actionNSUC}`;
+            actionsCreated[namespace] = payload => ({ 
                 type : params[actionNSUC], payload 
             });
         }

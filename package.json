@@ -1,6 +1,6 @@
 {
   "name": "redux-wings",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Gives your Redux Ducks wings!",
   "main": "build/index.min.js",
   "scripts": {
