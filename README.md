@@ -19,6 +19,10 @@ npm i --save-dev redux-wings
 
 ## Utilities
 
+**`composeReducers`**
+
+Similar to `redux`'s `compose` function, but tailored for reducers to support unlimited function parameters (in this sense what we care about is `state` and `payload` params). This would allow us to compose one reducer slice from different functions and is a very streamline way to split up reducer functions in Redux. This is used in the example given below in the *Examples* section.
+
 **`createActions`** 
 
 Generates actions corresponding to `XXX_SUCCESS`, `XXX_REQUEST`, `XXX_ERROR`, where `XXX` corresponds to your namespace to upper snake case. 
@@ -50,7 +54,7 @@ We could do that via the following:
 **`modules/session/sessionActions.js`**
 ```
 import { 
-    createActions 
+    createActions
 } from 'redux-wings'
 import api from 'my-app/api'
 import appHistory from 'utils/appHistory'
@@ -113,16 +117,15 @@ const  {
 // functionality!
 ```
 
-Continuing the above example, when combining our reducers using `combineReducers`, we can simply `compose` our reducers to easily augment functionality.
+Continuing the above example, when combining our reducers using `combineReducers`, we can simply compose our reducer transformation functions using `composeReducers` to easily introduce our asynchronous variables without the boilerplate of repeating ourselves for every async action.
 
-!Important Note: to properly process your existing state, the asyncReducer must be specified first
-(`compose` actually processes reducer arguments from right-to-left)
+**Important Note:** to properly process your existing state without declaring your async variable twice, the asyncReducer must be specified first
+(`composeReducer` actually processes reducer arguments from right-to-left).
 
 **`reducers.js`**
 ```
-import { 
-    combineReducers, compose 
-} from 'redux'
+import { combineReducers } from 'redux'
+import { composeReducers } from 'redux-wings'
 import session from './modules/session'
 import users from './modules/users'
 import misc from './modules/misc'
@@ -130,7 +133,7 @@ import misc from './modules/misc'
 // compose our session reducer to contain "loginState"
 // as defined in sessionActions.js
 
-const sessionReducer = compose(session.actions.asyncReducer, session.reducer);
+const sessionReducer = composeReducers(session.actions.asyncReducer, session.reducer);
 
 export default combineReducers({
     session  : sessionReducer,
@@ -138,7 +141,6 @@ export default combineReducers({
     feedback : feedback.reducer
 });
 ```
-
 
 ## Note
 

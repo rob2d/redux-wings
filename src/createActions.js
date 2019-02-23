@@ -78,9 +78,7 @@ function createActions({ sliceNamespace, actions }) {
     // specified to transform based on action
     // passed
         
-    function asyncReducer(state, params = { 
-        payload : {}, type : undefined 
-    }) {    
+    function asyncReducer(state, params={}) {
         const { payload, type } = params;
 
         let newState = state; // will be modified immutably
