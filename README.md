@@ -96,7 +96,7 @@ const { actions, asyncReducer } = createActions({
                                          // to attach AsyncStates to `loginState` in
                                          // reducer for return object
         }, 
-        'logout' // creates action dispatcher + "session/LOGOUT" type
+        'logout' // creates action dispatcher + "session/LOGOUT" type which can optionally take a payload
     ]
 });
 
@@ -142,10 +142,14 @@ export default combineReducers({
 });
 ```
 
+## ROADMAP
+Things coming up:
+
+- Asynchronous actions created should auto-detect thunks.
+- parameters for queue-ing async actions.
+
 ## Note
 
 This is a new library. If you have any issues, please feel free to submit as I appreciate any feedback! P.R.s and discussion for changes are also welcome.
-
-Also it is well understood that the example could be way better 😅 (and there should be very explicit API here as well soon)
 
 Thanks.

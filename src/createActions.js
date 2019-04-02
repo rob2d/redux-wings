@@ -16,7 +16,7 @@ import { toUpperSnakeCase } from './utils/nameConversions'
  * 
  */
 function createActions({ sliceNamespace, actions }) {
-    const actionsCreated = {};
+    const newActions = {};
     let stateUpdateMap = new Map();
 
     actions.forEach( actionEntry => {
@@ -33,7 +33,7 @@ function createActions({ sliceNamespace, actions }) {
             } = actionEntry;
             
             createAsyncAction({   
-                actions : actionsCreated,      
+                actions : newActions,      
                 sliceNamespace,
                 namespace, 
                 requestHandler 
@@ -65,9 +65,9 @@ function createActions({ sliceNamespace, actions }) {
             );
 
             const actionNSUC = toUpperSnakeCase(namespace);
-            actionsCreated[actionNSUC] = `${sliceNamespace}/${actionNSUC}`;
-            actionsCreated[namespace] = payload => ({ 
-                type : params[actionNSUC], payload 
+            newActions[actionNSUC] = `${sliceNamespace}/${actionNSUC}`;
+            newActions[namespace] = payload => ({ 
+                type : newActions[actionNSUC], payload 
             });
         }
     });
@@ -112,7 +112,7 @@ function createActions({ sliceNamespace, actions }) {
     };
 
     return { 
-        actions : actionsCreated, 
+        actions : newActions, 
         asyncReducer 
     };
 }
