@@ -19,18 +19,18 @@ function createActions({ sliceNamespace, actions }) {
     const newActions = {};
     let stateUpdateMap = new Map();
 
-    actions.forEach( actionEntry => {
+    actions.forEach( entry => {
         
-        // if a requestHandler was specified, 
-        // we know that we are working with
-        // an asynchronous action
+        // if "requestHandler" or "stateVariable"
+        // was requested, we know that we are working
+        // with an asynchronous action
         
-        if((typeof actionEntry == 'object') && actionEntry.requestHandler) {
+        if((typeof entry == 'object') && (entry.requestHandler || entry.stateVariable)) {
             const { 
                 namespace, 
                 requestHandler, 
                 stateVariable 
-            } = actionEntry;
+            } = entry;
             
             createAsyncAction({   
                 actions : newActions,      
@@ -58,10 +58,10 @@ function createActions({ sliceNamespace, actions }) {
         // want to generate an action dispatcher
         // and namespace
         
-        else if(typeof actionEntry == 'string'){
+        else if(typeof entry == 'string'){
             const namespace = (
-                (typeof actionEntry == 'object') ? 
-                actionEntry.namespace : actionEntry
+                (typeof entry == 'object') ? 
+                entry.namespace : entry
             );
 
             const actionNSUC = toUpperSnakeCase(namespace);
