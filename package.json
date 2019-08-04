@@ -1,6 +1,6 @@
 {
   "name": "redux-wings",
-  "version": "0.0.13",
+  "version": "0.1.0",
   "description": "Gives your Redux Ducks wings!",
   "main": "build/index.min.js",
   "scripts": {
@@ -10,14 +10,19 @@
     "prepublish": "npm run pre-babel && npm run pre-browserify && npm run pre-uglify",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "browserify-global-shim": {
+    "react": "React"
+  },
   "keywords": [
     "redux",
     "actions",
+    "reducer",
+    "streamline",
     "boilerplate",
     "ducks"
   ],
   "author": "Robert Concepcion III",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-plugin-add-module-exports": "^0.2.1",
