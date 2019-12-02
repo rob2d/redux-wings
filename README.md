@@ -1,11 +1,11 @@
-# redux-wings 
+# redux-wings
 *"It gives your Redux wings!"*
 
 A lightweight, dependency-free collection of utilities for streamlining Redux development by letting you quickly make synchronous or asynchronous actions. Designed to work great with the [Redux Ducks](https://github.com/erikras/ducks-modular-redux) pattern for modular and consistent Redux apps that scale on teams and projects that go beyond your typical CRUD systems.
 
 - [Installation](#installation)
 - [Library](#library)
-- [Pragmatic Example](#pragmatic-example)
+- [Usage](#usage)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
@@ -21,7 +21,7 @@ npm i --save-dev redux-wings
 
 ### `createActions({ action, sliceNamespace })` ###
 
-Creates actions in a declarative way that may or may not be asynchronous actions. 
+Creates actions in a declarative way that may or may not be asynchronous actions.
 
 The `createActions` method accepts an object the following named parameters:
 
@@ -30,9 +30,9 @@ The `createActions` method accepts an object the following named parameters:
 
 The redux namespace as *camelCase* that this slice belongs to. For example: `session`, `users`,  `userTransactions`, etc.
 
-**`actions`** `: String | Object` 
+**`actions`** `: String | Object`
 
-A list of actions either specified as a *camelCase* string representing the action namespace or an Object which determines Async action namespaces to create. 
+A list of actions either specified as a *camelCase* string representing the action namespace or an Object which determines Async action namespaces to create.
 
 If specified as a `String`, will automatically generate namespace of action constant in *UPPER_SNAKE_CASE*, as well as a default *camelCase*'d function which will optionally just funnel a payload if available to the listening reducer when action dispatched.
 
@@ -49,12 +49,12 @@ An enum namespace for strings that represent for four different possible asynchr
 
 **`SUCCESS`** : an action which has successfully completed without errors after `PROCESSING`.
 
-**`ERROR`** : an action which has contained some errors along the way (which may or may not have completed) after it was `PROCESSING`. 
+**`ERROR`** : an action which has contained some errors along the way (which may or may not have completed) after it was `PROCESSING`.
 
 
 ### `composeReducers(reducer1, reducer2(, ...otherReducers))` ###
 
-Similar to `redux`'s `compose` function, but tailored for reducers to support unlimited function parameters (in this sense what we care about is `state` and `payload` params). This would allow us to compose one reducer slice from different functions and is a very streamline way to split up reducer functions in Redux. 
+Similar to `redux`'s `compose` function, but tailored for reducers to support unlimited function parameters (in this sense what we care about is `state` and `payload` params). This would allow us to compose one reducer slice from different functions and is a very streamline way to split up reducer functions in Redux.
 
 Example:
 
@@ -80,20 +80,20 @@ export default combineReducers({
 **Important Note:** to properly process your existing state without declaring your async variable twice, the asyncReducer must be specified first
 (`composeReducer` actually processes reducer arguments from right-to-left).
 
-## Pragmatic Example
+## Usage
 
 Below is an example of generating actions painlessly for
 logging in and logging out.
 
 So lets say in our `actions.js` (part of our session ducks module at `[root]/modules/session/` folder),
-we wish to generate actions that handle our login state as well as track how the request is going. 
+we wish to generate actions that handle our login state as well as track how the request is going.
 
 We could do that via the following:
 
 
 **`modules/session/sessionActions.js`**
 ```js
-import { 
+import {
     createActions
 } from 'redux-wings'
 import api from 'my-app/api'
@@ -101,7 +101,7 @@ import appHistory from 'utils/appHistory'
 
 // creates a new set of Redux actions
 // for asynchronously logging in within
-// "session" slice and then a standalone 
+// "session" slice and then a standalone
 // action type/action creator for logging out
 
 // also, by providing "reducerVariable" to
@@ -118,7 +118,7 @@ const { actions, asyncReducer } = createActions({
             requestHandler ({ username, password }) {
                 return api.login({ username, password })
                     .then( result => new Promise((resolve, reject) => {
-                        
+
                         // re-route user to landing page
                         // before resolving login success
 
@@ -137,29 +137,29 @@ const { actions, asyncReducer } = createActions({
             // to attach AsyncStates to `loginState` in
             // reducer for return object
 
-            stateVariable : 'loginState' 
-        }, 
+            stateVariable : 'loginState'
+        },
 
-        // creates action dispatcher + "session/LOGOUT" type 
+        // creates action dispatcher + "session/LOGOUT" type
         // which can optionally take a payload
-        
-        'logout' 
+
+        'logout'
     ]
 });
 
-// we now have access to all of the following! 
+// we now have access to all of the following!
 
 const  {
     loginRequest,
-    logout, 
+    logout,
     LOGIN_REQUEST,
     LOGIN_SUCCESS,
     LOGIN_ERROR,
     LOGOUT,
-    asyncReducer 
-} = actions; 
+    asyncReducer
+} = actions;
 
-// async reducer will now also be available 
+// async reducer will now also be available
 // to easily plug in our loginState variable
 // functionality!
 ```

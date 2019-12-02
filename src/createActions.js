@@ -7,77 +7,85 @@ import createAsyncAction    from './createAsyncAction';
 import { toUpperSnakeCase } from './utils/nameConversions'
 
 /**
- * Creates a set of actions and possibly 
+ * Creates a set of actions and possibly
  * pure functions to augment your reducers
  * for async state mapping
- * 
+ *
  * @param param0
  * @param param0.sliceNamespace {String}
- * 
+ *
  */
 function createActions({ sliceNamespace, actions }) {
     const newActions = {};
     let stateUpdateMap = new Map();
 
     actions.forEach( entry => {
-        
+
         // if "requestHandler" or "stateVariable"
         // was requested, we know that we are working
         // with an asynchronous action
-        
+
         if((typeof entry == 'object') && (entry.requestHandler || entry.stateVariable)) {
-            const { 
-                namespace, 
-                requestHandler, 
-                stateVariable 
+            const {
+                namespace,
+                requestHandler,
+                stateVariable
             } = entry;
-            
-            createAsyncAction({   
-                actions : newActions,      
+
+            createAsyncAction({
+                actions : newActions,
                 sliceNamespace,
-                namespace, 
-                requestHandler 
+                namespace,
+                requestHandler
             });
 
             // if stateVariable also specified,
-            // populate a reducer function
-            
+            // populate stateUpdateMap with actions
+            // which correspond to an AsyncState
+
             if(stateVariable) {
                 const actionNSPrefix = `${sliceNamespace}/${toUpperSnakeCase(namespace)}`;
 
+                if(!stateUpdateMap.has(stateVariable)) {
+                    stateUpdateMap.set(stateVariable, {});
+                }
+
+                const updateMapEntry = stateUpdateMap.get(stateVariable);
+
                 stateUpdateMap.set(stateVariable, {
+                    ...stateUpdateMap.get(stateVariable),
                     [`${actionNSPrefix}_REQUEST`] : PROCESSING,
                     [`${actionNSPrefix}_SUCCESS`] : SUCCESS,
-                    [`${actionNSPrefix}_ERROR`]   : ERROR
+                    [`${actionNSPrefix}_ERROR`] : ERROR
                 });
             }
-        } 
-        
+        }
+
         // otherwise, we are working with
         // a non async function and just
         // want to generate an action dispatcher
         // and namespace
-        
+
         else if(typeof entry == 'string'){
             const namespace = (
-                (typeof entry == 'object') ? 
+                (typeof entry == 'object') ?
                 entry.namespace : entry
             );
 
             const actionNSUC = toUpperSnakeCase(namespace);
             newActions[actionNSUC] = `${sliceNamespace}/${actionNSUC}`;
-            newActions[namespace] = payload => ({ 
-                type : newActions[actionNSUC], payload 
+            newActions[namespace] = payload => ({
+                type : newActions[actionNSUC], payload
             });
         }
     });
 
-    
+
     // create function to represent reducer
     // that can handle all state variables
     // specified to transform based on action
     // passed
-        
+
     function asyncReducer(state, params={}) {
         const { payload, type } = params;
 
@@ -86,7 +94,7 @@ function createActions({ sliceNamespace, actions }) {
         // iterate through each state variable
 
         for(let [stateVariable, actionTypeDict] of stateUpdateMap) {
-            
+
             // if a state is first being created by containing
             // reducer, it should populate extra state variables
             // as "IDLE"; note we do not process this as a changing
@@ -98,11 +106,11 @@ function createActions({ sliceNamespace, actions }) {
                 state[stateVariable] = AsyncStates.IDLE;
             }
 
-            // now lets check if actionTypeDict contains matches 
+            // now lets check if actionTypeDict contains matches
             // for setting a new state variable
 
             if(actionTypeDict[type] && stateVariable != actionTypeDict[type]) {
-                newState = Object.assign({ ...state }, { 
+                newState = Object.assign({ ...state }, {
                     [stateVariable] : actionTypeDict[type]
                 });
             }
@@ -111,9 +119,9 @@ function createActions({ sliceNamespace, actions }) {
         return newState;
     };
 
-    return { 
-        actions : newActions, 
-        asyncReducer 
+    return {
+        actions : newActions,
+        asyncReducer
     };
 }
 
