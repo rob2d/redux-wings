@@ -19,19 +19,14 @@ function createActions({ sliceNamespace, actions }) {
     const newActions = {};
     let stateUpdateMap = new Map();
 
-    actions.forEach( entry => {
+    actions.forEach((action={}) => {
+        const { namespace, requestHandler, stateVariable } = action;
 
         // if "requestHandler" or "stateVariable"
-        // was requested, we know that we are working
+        // existed, we know that we are working
         // with an asynchronous action
 
-        if((typeof entry == 'object') && (entry.requestHandler || entry.stateVariable)) {
-            const {
-                namespace,
-                requestHandler,
-                stateVariable
-            } = entry;
-
+        if((typeof action == 'object') && (requestHandler || stateVariable)) {
             createAsyncAction({
                 actions : newActions,
                 sliceNamespace,
@@ -43,7 +38,12 @@ function createActions({ sliceNamespace, actions }) {
             // populate stateUpdateMap with actions
             // which correspond to an AsyncState
 
-            if(stateVariable) {
+            const hasStateVariable = (
+                (typeof stateVariable == 'string') &&
+                stateVariable
+            );
+
+            if(hasStateVariable) {
                 const actionNSPrefix = `${sliceNamespace}/${toUpperSnakeCase(namespace)}`;
 
                 if(!stateUpdateMap.has(stateVariable)) {
@@ -66,11 +66,8 @@ function createActions({ sliceNamespace, actions }) {
         // want to generate an action dispatcher
         // and namespace
 
-        else if(typeof entry == 'string'){
-            const namespace = (
-                (typeof entry == 'object') ?
-                entry.namespace : entry
-            );
+        else if(typeof action == 'string'){
+            const namespace = action; // alias
 
             const actionNSUC = toUpperSnakeCase(namespace);
             newActions[actionNSUC] = `${sliceNamespace}/${actionNSUC}`;
