@@ -186,16 +186,9 @@ export default combineReducers({
 });
 ```
 
-## Roadmap
-
-- Asynchronous actions created should auto-detect thunks.
-- parameters for queue-ing async actions.
-- Improved documentation for the philosophy behind this library and more examples.
-- Typescript annotations.
-
 ## Contributing
 
-At the moment, this is actively used in some pretty large projects, but maintained by a very small team. If you have any issues, please feel free to submit as any feedback is appreciated! P.R.s and discussion for changes are also welcome.
+At the moment, this is actively used in some pretty large projects, but maintained by a very small team. If you have any issues, please feel free to submit as any feedback is appreciated! P.R.s and discussion for changes are always absolutely welcome and encouraged.
 
 In terms of the philosophy behind this, while we would like to preserve backwards compatibility, the main goal is to make life easier without cutting corners or losing flexibility that Redux provides.
 
