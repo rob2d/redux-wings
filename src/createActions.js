@@ -1,10 +1,7 @@
-import AsyncStates, {
-    PROCESSING,
-    SUCCESS,
-    ERROR
-} from './AsyncStates'
+import { IDLE, PROCESSING, SUCCESS, ERROR } from './AsyncStates'
 import createAsyncAction    from './createAsyncAction';
 import { toUpperSnakeCase } from './utils/nameConversions'
+
 
 /**
  * Creates a set of actions and possibly
@@ -100,7 +97,7 @@ function createActions({ sliceNamespace, actions }) {
             // always triggers an initial render for first state
 
             if(typeof state[stateVariable] == 'undefined') {
-                state[stateVariable] = AsyncStates.IDLE;
+                state[stateVariable] = IDLE;
             }
 
             // now lets check if actionTypeDict contains matches
