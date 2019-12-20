@@ -5,8 +5,8 @@ A lightweight, dependency-free collection of utilities for streamlining Redux de
 
 - [Installation](#installation)
 - [Library](#library)
-    - [createActions](#createactions-action-slicenamespace)
-    - [AsyncStates](#asyncstates-:-idle-|-error-|-processing-|-success)
+    - [createActions](#createactions-action-slicenamespace-)
+    - [AsyncStates](#asyncstates--idle--error--processing--success)
     - [composeReducers](#composereducersreducer1-reducer2-otherreducers)
 - [Usage](#usage)
 - [Contributing](#contributing)
