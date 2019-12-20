@@ -7,3 +7,4 @@
 - flow types.
 - ts config.
 - async functions/generators: **(a)** test with, **(b)** solve any issues found, **(c)** improve/add official support, and **(d)** document.
+- update build process to use corejs3 + newer babel (related to flow + async support)
