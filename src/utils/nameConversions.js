@@ -41,7 +41,5 @@ export function toCamelCase (str) {
 export default {
     toSnakeCase,
     toUpperSnakeCase,
-    toLowerCase,
-    toUpperCase,
     toCamelCase
 }
