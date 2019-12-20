@@ -5,7 +5,8 @@ module.exports = {
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'build'),
-    filename: 'index.min.js'
+    filename: 'index.min.js',
+    'libraryTarget': 'commonjs2'
   },
   module: {
     rules: [
@@ -19,7 +20,7 @@ module.exports = {
       }
     ]
   },
-  plugins : [
-    new webpack.optimize.ModuleConcatenationPlugin()
-  ]
+  resolve : {
+      extensions : ['.js']
+  }
 };

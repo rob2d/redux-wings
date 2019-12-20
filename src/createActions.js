@@ -119,4 +119,4 @@ function createActions({ sliceNamespace, actions }) {
     };
 }
 
-export default createActions
+export default createActions;
