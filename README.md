@@ -5,8 +5,10 @@ A lightweight, dependency-free collection of utilities for streamlining Redux de
 
 - [Installation](#installation)
 - [Library](#library)
+    - [createActions](#createactions-action-slicenamespace)
+    - [AsyncStates](#asyncstates-:-idle-|-error-|-processing-|-success)
+    - [composeReducers](#composereducersreducer1-reducer2-otherreducers)
 - [Usage](#usage)
-- [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -38,10 +40,57 @@ If specified as a `String`, will automatically generate namespace of action cons
 
 If specified as an object, it will take an interface which would represent an object containing `namespace` (*camelCase*'d) and optionally if you would like to auto-generate asynchronous behavior as well as `XXX_SUCCESS`, `XXX_ERROR` and `XXX_REQUEST` boilerplate, `requestHandler` and `stateVariable`. These are used when we generate an `asyncReducer` (seen in final example in later section) which auto-augments functionality to toggle your `stateVariable` specified automatically.
 
+Example:
+```js
+import { createActions } from 'redux-wings';
+import api from 'my-module/api';
 
-### `AsyncStates` ###
+const { actions, asyncReducer } = createActions({
+    sliceNamespace : 'session',
+    actions : [
 
-An enum namespace for strings that represent for four different possible asynchronous states, those being:
+        // the following entry creates
+        // an action of 'login' which generates
+        // actions.LOGIN_REQUEST,
+        // actions.LOGIN_SUCCESS,
+        // actions.LOGIN_ERROR for constant to
+        // check in a reducer
+
+        // also, an actions.loginRequest()
+        // var which will automatically dispatch
+        // these on init/success/error, and toggle
+        // the 'loginRequest' variable
+        {
+            namespace : 'login',
+
+            // a Promise creator which calls an API,
+            // and on failure will trigger state to
+            // change along with actions
+
+            loginRequest : api.login,
+
+            // indicate that we want to correlate
+            // LOGIN_REQUEST action with setting
+            // loginRequestState to SUCCESS/PROCESSING/
+            // ERROR dependent on action ran.
+
+            stateVariable : 'loginRequestState'
+        },
+
+        // specifying a string as follows will
+        // simply creates actions.LOGOUT constant
+        // as well as actions.logout() action
+        // creator that takes an optional payload
+        // parameter
+
+        'logout'
+    ]
+});
+```
+
+### `AsyncStates : IDLE | ERROR | PROCESSING | SUCCESS` ###
+
+A string enum that represent for four different possible asynchronous states, those being:
 
 **`IDLE`** : an action is idle when it has not been dispatched and the store has just initiated (and not yet a need to have checked it). It may also be reset to this state on success or error as specified by a user in reducer manually if they prefer to go with this paradigm (or after some time incrementally in an action dispatcher).
 
@@ -51,6 +100,26 @@ An enum namespace for strings that represent for four different possible asynchr
 
 **`ERROR`** : an action which has contained some errors along the way (which may or may not have completed) after it was `PROCESSING`.
 
+Example usage:
+
+Can be imported either
+
+1. with enums directly from package module
+
+```js
+    import {
+        IDLE,
+        SUCCESS,
+        ERROR,
+        PROCESSING
+    } from 'redux-wings';
+```
+or
+
+2. as a namespace
+```js
+import { AsyncStates } from 'redux-wings';
+```
 
 ### `composeReducers(reducer1, reducer2(, ...otherReducers))` ###
 
@@ -93,9 +162,7 @@ We could do that via the following:
 
 **`modules/session/sessionActions.js`**
 ```js
-import {
-    createActions
-} from 'redux-wings'
+import { createActions } from 'redux-wings'
 import api from 'my-app/api'
 import appHistory from 'utils/appHistory'
 
@@ -125,10 +192,13 @@ const { actions, asyncReducer } = createActions({
                         appHistory.goTo('/welcome');
                         resolve(result);
 
-                        // "session/LOGIN_SUCCESS" is dispatched
-                        //  automatically afterwards,
-                        //  but if we get a failed action,
+                        // "session/LOGIN_SUCCESS"
+                        // is dispatched
+                        // automatically afterwards,
+                        // but if we get a failed action,
+                        // or we reject anything,
                         // "session/LOGIN_ERROR"
+                        // is dispatched
 
                     }));
             },
@@ -140,8 +210,10 @@ const { actions, asyncReducer } = createActions({
             stateVariable : 'loginState'
         },
 
-        // creates action dispatcher + "session/LOGOUT" type
-        // which can optionally take a payload
+        // creates action dispatcher +
+        // "session/LOGOUT" type
+        // which can optionally take
+        // a payload
 
         'logout'
     ]
@@ -177,7 +249,10 @@ import misc from './modules/misc'
 // compose our session reducer to contain "loginState"
 // as defined in sessionActions.js
 
-const sessionReducer = composeReducers(session.actions.asyncReducer, session.reducer);
+const sessionReducer = composeReducer(
+    session.actions.asyncReducer,
+    session.reducer
+);
 
 export default combineReducers({
     session  : sessionReducer,
@@ -188,13 +263,10 @@ export default combineReducers({
 
 ## Contributing
 
-At the moment, this is actively used in some pretty large projects, but maintained by a very small team. If you have any issues, please feel free to submit as any feedback is appreciated! P.R.s and discussion for changes are always absolutely welcome and encouraged.
+If you have any issues, please feel free to submit as any feedback and iteration is always appreciated! P.R.s and discussion for changes are always absolutely welcome and encouraged.
 
 In terms of the philosophy behind this, while we would like to preserve backwards compatibility, the main goal is to make life easier without cutting corners or losing flexibility that Redux provides.
 
-Thanks.
-
 ## License
 
-- Open Source **[MIT license](./LICENSE.txt)**
-- 2019 © <a href="http://robertconcepcion.com" target="_blank">Robert Concepción III</a>
+Open Source **[MIT](./LICENSE.txt)**
