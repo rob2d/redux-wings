@@ -1,8 +1,8 @@
-export const IDLE       = 'AsyncStates.IDLE';
-export const PROCESSING = 'AsyncStates.PROCESSING';
-export const SUCCESS    = 'AsyncStates.SUCCESS';
-export const ERROR      = 'AsyncStates.ERROR';
+export const IDLE = 'idle';
+export const PROCESSING = 'processing';
+export const SUCCESS = 'success';
+export const ERROR = 'error';
 
-export default { 
+export default {
     IDLE, PROCESSING, SUCCESS, ERROR
 }
