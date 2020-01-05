@@ -1,6 +1,6 @@
-import { toUpperSnakeCase } from './utils/stringConversions'
+import { toUpperSnakeCase } from './utils/stringConversions';
 
-let actionVariants = ['REQUEST', 'SUCCESS', 'ERROR' ];
+const actionVariants = ['REQUEST', 'SUCCESS', 'ERROR'];
 
 /**
  * populates a set of redux actions with
@@ -13,7 +13,7 @@ let actionVariants = ['REQUEST', 'SUCCESS', 'ERROR' ];
  * @param {function} param0.requestHandler
  * @param {Object}
  */
-function createAsyncAction ({ actions, namespace, sliceNamespace, requestHandler }) {
+function createAsyncAction({ actions, namespace, sliceNamespace, requestHandler }) {
     const actionNsUC = toUpperSnakeCase(namespace);
 
     // populate namespaces for each variant
@@ -25,17 +25,14 @@ function createAsyncAction ({ actions, namespace, sliceNamespace, requestHandler
 
     // populate request logic
 
-    let requestMethodNs = `${namespace}Request`;
+    const requestMethodNs = `${namespace}Request`;
 
-    actions[requestMethodNs] = function(payload=undefined) {
+    actions[requestMethodNs] = (payload=undefined) => {
         return (dispatch, getState) => {
 
             // signal that request was made
 
-            dispatch({
-                type : actions[`${actionNsUC}_REQUEST`],
-                payload
-            });
+            dispatch({ type : actions[`${actionNsUC}_REQUEST`], payload });
 
             // call async request caller
 
@@ -65,7 +62,7 @@ function createAsyncAction ({ actions, namespace, sliceNamespace, requestHandler
                     });
                 });
         };
-    }
+    };
 }
 
-export default createAsyncAction
+export default createAsyncAction;

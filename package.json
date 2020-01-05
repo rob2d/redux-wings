@@ -7,7 +7,7 @@
     "start": "webpack --watch",
     "build": "webpack --mode production",
     "dev": "webpack-dev-server --env testServer --mode development --open",
-    "prepare": "npm run build",
+    "prepare": "npm run build"
   },
   "keywords": [
     "react",

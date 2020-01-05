@@ -13,7 +13,7 @@ import { toUpperSnakeCase } from './utils/stringConversions'
  */
 function createActions({ sliceNamespace, actions }) {
     const newActions = {};
-    let stateUpdateMap = new Map();
+    const stateUpdateMap = new Map();
 
     actions.forEach((action={}) => {
         const { namespace, requestHandler, stateVariable } = action;
@@ -40,7 +40,9 @@ function createActions({ sliceNamespace, actions }) {
             );
 
             if(hasStateVariable) {
-                const actionNSPrefix = `${sliceNamespace}/${toUpperSnakeCase(namespace)}`;
+                const actionNSPrefix = `${sliceNamespace}/${
+                    toUpperSnakeCase(namespace)
+                }`;
 
                 if(!stateUpdateMap.has(stateVariable)) {
                     stateUpdateMap.set(stateVariable, {});
@@ -62,13 +64,14 @@ function createActions({ sliceNamespace, actions }) {
         // want to generate an action dispatcher
         // and namespace
 
-        else if(typeof action == 'string'){
+        else if(typeof action == 'string') {
             const namespace = action; // alias
 
             const actionNSUC = toUpperSnakeCase(namespace);
             newActions[actionNSUC] = `${sliceNamespace}/${actionNSUC}`;
             newActions[namespace] = payload => ({
-                type : newActions[actionNSUC], payload
+                type : newActions[actionNSUC],
+                payload
             });
         }
     });
@@ -86,7 +89,7 @@ function createActions({ sliceNamespace, actions }) {
 
         // iterate through each state variable
 
-        for(let [stateVariable, actionTypeDict] of stateUpdateMap) {
+        for(const [stateVariable, actionTypeDict] of stateUpdateMap) {
 
             // if a state is first being created by containing
             // reducer, it should populate extra state variables
@@ -103,14 +106,14 @@ function createActions({ sliceNamespace, actions }) {
             // for setting a new state variable
 
             if(actionTypeDict[type] && stateVariable != actionTypeDict[type]) {
-                newState = Object.assign({ ...state }, {
+                newState = { ...state,
                     [stateVariable] : actionTypeDict[type]
-                });
+                };
             }
         }
 
         return newState;
-    };
+    }
 
     return {
         actions : newActions,
