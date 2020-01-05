@@ -1,4 +1,4 @@
-import { toUpperSnakeCase } from './utils/nameConversions'
+import { toUpperSnakeCase } from './utils/stringConversions'
 
 let actionVariants = ['REQUEST', 'SUCCESS', 'ERROR' ];
 

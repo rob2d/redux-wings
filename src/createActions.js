@@ -1,7 +1,6 @@
 import { IDLE, PROCESSING, SUCCESS, ERROR } from './AsyncStates'
 import createAsyncAction    from './createAsyncAction';
-import { toUpperSnakeCase } from './utils/nameConversions'
-
+import { toUpperSnakeCase } from './utils/stringConversions'
 
 /**
  * Creates a set of actions and possibly
