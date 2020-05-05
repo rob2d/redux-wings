@@ -1,28 +1,28 @@
 import createAsyncAction from './createAsyncAction';
-import createActions from './createActions';
-import AsyncStates from './AsyncStates';
-import composeReducers from './composeReducers';
+import createStateSlice from './createStateSlice';
+import * as AsyncStates from './AsyncStates';
+import composeReducers from './utils/composeReducers';
 
 const { IDLE, PROCESSING, SUCCESS, ERROR } = AsyncStates;
 
 export {
     createAsyncAction,
-    createActions,
+    createStateSlice,
     composeReducers,
     AsyncStates,
     IDLE,
     PROCESSING,
     SUCCESS,
     ERROR
-}
+};
 
 export default {
     createAsyncAction,
-    createActions,
+    createStateSlice,
     composeReducers,
     AsyncStates,
     IDLE,
     PROCESSING,
     SUCCESS,
     ERROR
-}
+};

@@ -1,68 +1,67 @@
-import { toUpperSnakeCase } from './utils/stringConversions';
-
-const actionVariants = ['REQUEST', 'SUCCESS', 'ERROR'];
+import createActionConst from './utils/createActionConst';
 
 /**
- * populates a set of redux actions with
- * action namespace XXX and provides constants
- *
  *
  * @param {Object} param0
  * @param {String} param0.namespace
  * @param {String} param0.sliceNamespace
- * @param {function} param0.requestHandler
+ * @param {function} param0.asyncRequestHandler
  * @param {Object}
  */
-function createAsyncAction({ actions, namespace, sliceNamespace, requestHandler }) {
-    const actionNsUC = toUpperSnakeCase(namespace);
-
-    // populate namespaces for each variant
-
-    actionVariants.forEach( variant => {
-        const constant = `${sliceNamespace}/${actionNsUC}_${variant}`;
-        actions[`${actionNsUC}_${variant}`] = constant;
-    });
-
-    // populate request logic
-
-    const requestMethodNs = `${namespace}Request`;
-
-    actions[requestMethodNs] = (payload=undefined) => {
-        return (dispatch, getState) => {
-
-            // signal that request was made
-
-            dispatch({ type : actions[`${actionNsUC}_REQUEST`], payload });
-
-            // call async request caller
-
-            let requestResult = requestHandler(payload);
-
-            // if we have a function as request result,
-            // we are interpreting a thunk
-            if(typeof requestResult == 'function') {
-                requestResult = requestResult(dispatch, getState);
-            }
-
-            return requestResult
-                .then( response => {
-                    return new Promise((resolve, reject)=> {
-                        dispatch({
-                            type : actions[`${actionNsUC}_SUCCESS`],
-                            payload : response
-                        });
-
-                        resolve(response);
-                    });
-                })
-                .catch( error => {
-                    dispatch({
-                        type    : actions[`${actionNsUC}_ERROR`],
-                        payload : error
-                    });
-                });
-        };
+export default function createAsyncAction({
+    actionNs, sliceNs, asyncRequest, asyncEffects, actions
+}) {
+    const actionTypes = {
+        request : createActionConst(sliceNs, `${actionNs}Request`),
+        success : createActionConst(sliceNs, `${actionNs}Success`),
+        error : createActionConst(sliceNs, `${actionNs}Error`)
     };
-}
 
-export default createAsyncAction;
+    actions[`${actionNs}Request`] = (payload=undefined) => (dispatch, getState) => {
+        let requestResult = asyncRequest(payload);
+
+        // if we have a function as request result,
+        // we are interpreting a thunk
+
+        if(typeof requestResult == 'function') {
+            requestResult = requestResult(dispatch, getState, actions);
+        }
+
+        if(asyncEffects?.request) {
+            asyncEffects.request(payload)(dispatch, getState, actions);
+        }
+        else {
+            dispatch({ type : actionTypes.request, payload });
+        }
+
+        const onSuccess = asyncEffects?.success ?
+            payload => asyncEffects.success(payload)(dispatch, getState, actions) :
+            payload => dispatch({ type : actionTypes.success, payload });
+
+        const onError = asyncEffects?.error ?
+            error => asyncEffects.error(error)(dispatch, getState, actions) :
+            error => dispatch({
+                type : actionTypes.error,
+                payload : {
+                    ...payload,
+                    error
+                } });
+
+        if(requestResult.then) {
+            return requestResult.then(onSuccess).catch(onError);
+        }
+        else {
+            return onSuccess(requestResult).catch(onError);
+        }
+    };
+
+    if(asyncEffects?.success) {
+        actions[`${actionNs}Success`] = (payload=undefined) => (dispatch, getState) =>
+            payload => asyncEffects.success(payload)(dispatch, getState, actions);
+    }
+
+    if(asyncEffects?.error) {
+        actions[`${actionNs}Error`] = (payload=undefined) => (dispatch, getState) =>
+            payload => asyncEffects.error(payload)(dispatch, getState, actions);
+    }
+}

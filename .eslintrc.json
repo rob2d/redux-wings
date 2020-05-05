@@ -19,6 +19,7 @@
         "consistent-return" : 0,
         "no-plusplus" : 0,
         "no-shadow" : 0,
+        "no-loop-func" :0,
         "no-undef-init" : 0,
         "quote-props" : 0,
         "quotes" : 0,

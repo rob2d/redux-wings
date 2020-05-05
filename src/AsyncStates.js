@@ -5,4 +5,4 @@ export const ERROR = 'error';
 
 export default {
     IDLE, PROCESSING, SUCCESS, ERROR
-}
+};

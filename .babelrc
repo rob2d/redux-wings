@@ -5,5 +5,8 @@
             "useBuiltIns": "usage", // or "entry"
             "corejs": 3
         }]
+    ],
+    "plugins" : [
+        "@babel/plugin-proposal-optional-chaining"
     ]
 }
