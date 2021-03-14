@@ -1,16 +1,15 @@
-function composeReducers( ...reducers ) {
-  if (reducers.length === 0) {
-    return x => x;
-  }
+const identity = x => x;
 
-  if (reducers.length === 1) {
-    return reducers[0];
-  }
+export default function composeReducers(...reducers) {
+    if(!reducers.length) {
+        return identity;
+    }
 
-  return reducers.reduce((a, b) => 
-    (value, ...rest) => 
-        a(b(value, ...rest), ...rest)
+    if(reducers.length === 1) {
+        return reducers[0];
+    }
+
+    return reducers.reduce((a, b) =>
+        (value, ...rest) => a(b(value, ...rest), ...rest)
     );
 }
-
-export default composeReducers

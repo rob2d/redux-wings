@@ -1,5 +1,3 @@
-import { IDLE } from './AsyncStates';
-
 /**
  * creates reducer which listens in on
  * ations
@@ -34,7 +32,26 @@ export default function createAutoReducer({
             nextState = { ...state };
 
             const kvPairs = actionStateKVMap.get(type);
-            kvPairs.forEach(([key, { value }]) => nextState[key] = value );
+
+            kvPairs.forEach(([key, { asyncStateMapper, value }]) => {
+                if(asyncStateMapper) {
+
+                    // map is altered by user; but we make this immutable
+                    // by default so that the map can be set in-place
+
+                    const stateMap = new Map(state[key]);
+                    asyncStateMapper({
+                        stateMap,
+                        payload,
+                        asyncState : value,
+                        state
+                    });
+                    nextState[key] = stateMap;
+                }
+                else {
+                    nextState[key] = value;
+                }
+            });
         }
 
         if(actionReducerMap.has(type)) {
