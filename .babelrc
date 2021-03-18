@@ -3,8 +3,10 @@
         "@babel/preset-flow",
         ["@babel/preset-env", {
             "useBuiltIns": "usage", // or "entry"
-            "corejs": 3,
-            
+            "corejs": 3
         }]
+    ],
+    "plugins" : [
+        "@babel/plugin-proposal-optional-chaining"
     ]
 }

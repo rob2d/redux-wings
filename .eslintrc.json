@@ -1,0 +1,125 @@
+{
+    "extends" : [
+        "airbnb",
+        "plugin:flowtype/recommended"
+    ],
+    "plugins" : [
+        "react",
+        "jsx-a11y",
+        "import",
+        "babel",
+        "flowtype"
+    ],
+    "rules" : {
+        "arrow-body-style" : 0,
+        "max-len" : [2, { "code" : 88 }],
+        "camelcase" : [1, { "allow" : ["^UNSAFE_"] } ],
+        "strict" : 0,
+        "eqeqeq" : 0,
+        "consistent-return" : 0,
+        "no-plusplus" : 0,
+        "no-shadow" : 0,
+        "no-loop-func" :0,
+        "no-undef-init" : 0,
+        "quote-props" : 0,
+        "quotes" : 0,
+        "jsx-a11y/alt-text" : 0,
+        "indent" : [2, 4, {
+            "SwitchCase" : 1,
+            "ignoredNodes": [
+               "JSXElement",
+               "JSXElement *",
+               "TemplateLiteral > *"
+            ]
+        }],
+        "semi" : [2, "always", { "omitLastInOneLineBlock" : true }],
+        "operator-linebreak" : [2, "after"],
+        "brace-style": [2, "stroustrup", { "allowSingleLine": true }],
+        "linebreak-style": 0,
+        "comma-dangle" : 0,
+        "no-unused-vars" : 0,
+        "no-console" : 0,
+        "space-before-function-paren" : [2, {
+            "named" : "never"
+        }],
+        "switch-colon-spacing" : [2, { "after" : true, "before" : true }],
+        "implicit-arrow-linebreak" : 0,
+        "prefer-arrow-callback" : [2, { "allowNamedFunctions" : true }],
+        "jsx-quotes": [2, "prefer-single"],
+        "import/extensions" : 0,
+        "import/no-unresolved" : 0,
+        "import/no-extraneous-dependencies" : 0,
+        "key-spacing" : 0,
+        "keyword-spacing" : [2, {
+            "overrides": {
+                "if": { "after": false },
+                "for": { "after": false },
+                "while": { "after": false }
+            }
+        }],
+        "no-else-return" : 0,
+        "no-return-assign" : 0,
+        "space-infix-ops" : 0,
+        "radix" : 0,
+        "function-paren-newline": 0,
+        "object-curly-spacing":1,
+        "array-bracket-spacing" : [2, "never", {
+            "objectsInArrays" : false,
+            "arraysInArrays" : false
+        }],
+        "arrow-parens" : [2, "as-needed"],
+        "arrow-spacing" : [2, {
+            "before" : true,
+            "after" : true
+        }],
+        "no-confusing-arrow" : 0,
+        "space-before-blocks" : [2, "always"],
+        "no-param-reassign" : 0,
+        "padded-blocks" : 0,
+        "comma-spacing" : 0,
+        "space-in-parens" : 0,
+        "react/jsx-filename-extension" : 0,
+        "react/jsx-one-expression-per-line" : 0,
+        "react/prop-types" : 0,
+        "react/jsx-indent" : [2, 4, {
+            "checkAttributes": false,
+            "indentLogicalExpressions": true
+        }],
+        "react/state-in-constructor" : 0,
+        "react/jsx-props-no-spreading" : 0,
+        "react/jsx-curly-newline" : 0,
+        "react/jsx-curly-brace-presence" : [2, {
+            "props": "always",
+            "children": "never"
+        }],
+        "react/jsx-indent-props" : [2, "first"],
+        "react/jsx-curly-spacing" : [2, {
+            "when" : "always",
+            "spacing" : { "objectLiterals" : "never" }
+        }],
+        "jsx-a11y/no-static-element-interactions" : 0,
+        "react/jsx-closing-tag-location" : 0,
+        "react/jsx-closing-bracket-location" : 0,
+        "object-curly-newline" : 0,
+        "object-property-newline" : 0,
+        "react/no-unescaped-entities" : 0,
+        "react-hooks/exhaustive-deps" : 0,
+        "no-restricted-syntax" : 0,
+        "import/no-dynamic-require": 0,
+        "import/newline-after-import" : 0,
+        "import/prefer-default-export" : 0,
+        "global-require": 0,
+        "spaced-comment" : 0,
+        "flowtype/space-before-type-colon" : 0
+    },
+    "env" : {
+        "jest" : true,
+        "es6" : true,
+        "browser" : true
+    },
+    "parser" : "babel-eslint",
+    "globals": {
+        "SITE_NAME": "readonly",
+        "API_URL" : true
+    }
+}

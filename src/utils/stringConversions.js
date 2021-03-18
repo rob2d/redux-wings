@@ -1,3 +1,5 @@
+// @flow
+
 /**
  * toSnakeCase('userId') => "user_id"
  * toSnakeCase('waitAMoment') => "wait_a_moment"

@@ -1,71 +1,71 @@
-import { toUpperSnakeCase } from './utils/nameConversions'
-
-let actionVariants = ['REQUEST', 'SUCCESS', 'ERROR' ];
+import createActionConst from './utils/createActionConst';
 
 /**
- * populates a set of redux actions with
- * action namespace XXX and provides constants
- *
  *
  * @param {Object} param0
  * @param {String} param0.namespace
  * @param {String} param0.sliceNamespace
- * @param {function} param0.requestHandler
+ * @param {function} param0.asyncRequestHandler
  * @param {Object}
  */
-function createAsyncAction ({ actions, namespace, sliceNamespace, requestHandler }) {
-    const actionNsUC = toUpperSnakeCase(namespace);
+export default function createAsyncAction({
+    actionNs, sliceNs, asyncRequest, asyncEffects, actions
+}) {
+    const actionTypes = {
+        request: createActionConst(sliceNs, `${actionNs}Request`),
+        success: createActionConst(sliceNs, `${actionNs}Success`),
+        error: createActionConst(sliceNs, `${actionNs}Error`)
+    };
 
-    // populate namespaces for each variant
+    actions[`${actionNs}Request`] = (payload=undefined) => (dispatch, getState) => {
+        let requestResult = asyncRequest(payload);
 
-    actionVariants.forEach( variant => {
-        const constant = `${sliceNamespace}/${actionNsUC}_${variant}`;
-        actions[`${actionNsUC}_${variant}`] = constant;
-    });
+        // if we have a function as request result,
+        // we are interpreting a thunk,
+        // which means we should assume user has control
+        // over dispatching async request action payload as well
 
-    // populate request logic
+        let isAsyncRequestThunk = false;
 
-    let requestMethodNs = `${namespace}Request`;
+        if(typeof requestResult == 'function') {
+            requestResult = requestResult(
+                dispatch,
+                getState,
+                actions,
+                actionTypes.request
+            );
+            isAsyncRequestThunk = true;
+        }
 
-    actions[requestMethodNs] = function(payload=undefined) {
-        return (dispatch, getState) => {
+        if(asyncEffects?.request) {
+            asyncEffects.request(payload)(
+                dispatch,
+                getState,
+                actions,
+                actionTypes.request
+            );
+        } else if(!isAsyncRequestThunk) {
+            dispatch({ type: actionTypes.request, payload });
+        }
 
-            // signal that request was made
+        const onSuccess = asyncEffects?.success ?
+            payload => asyncEffects.success(payload)(dispatch, getState, actions, actionTypes.success) :
+            payload => dispatch({ type: actionTypes.success, payload });
 
-            dispatch({
-                type : actions[`${actionNsUC}_REQUEST`],
-                payload
-            });
-
-            // call async request caller
-
-            let requestResult = requestHandler(payload);
-
-            // if we have a function as request result,
-            // we are interpreting a thunk
-            if(typeof requestResult == 'function') {
-                requestResult = requestResult(dispatch, getState);
-            }
-
-            return requestResult
-                .then( response => {
-                    return new Promise((resolve, reject)=> {
-                        dispatch({
-                            type : actions[`${actionNsUC}_SUCCESS`],
-                            payload : response
-                        });
-
-                        resolve(response);
-                    });
-                })
-                .catch( error => {
-                    dispatch({
-                        type    : actions[`${actionNsUC}_ERROR`],
-                        payload : error
-                    });
+        const onError = asyncEffects?.error ?
+            error => asyncEffects.error(error)(dispatch, getState, actions, actionTypes.error) :
+            error => {
+                console.error(error);
+                dispatch({
+                    type: actionTypes.error,
+                    payload: { ...payload, ...error }
                 });
-        };
-    }
-}
+            };
 
-export default createAsyncAction
+        if(requestResult?.then) {
+            return requestResult.then(onSuccess).catch(onError);
+        } else if((isAsyncRequestThunk && requestResult) || !isAsyncRequestThunk) {
+            return onSuccess(requestResult).catch(onError);
+        }
+    };
+}
