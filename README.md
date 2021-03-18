@@ -5,7 +5,7 @@ A lightweight, dependency-free collection of utilities for streamlining Redux de
 
 - [Installation](#installation)
 - [Library](#library)
-    - [createActions](#createactions-action-slicenamespace-)
+    - [createStateSlice](#createstateslice)
     - [AsyncStates](#asyncstates--idle--error--processing--success)
     - [composeReducers](#composereducersreducer1-reducer2-otherreducers)
 - [Usage](#usage)
@@ -21,11 +21,83 @@ npm i --save-dev redux-wings
 
 ## Library
 
-### `createActions({ action, sliceNamespace })` ###
+### `createStateSlice` ###
 
-Creates actions in a declarative way that may or may not be asynchronous actions.
+Creates `{ actions, reducers }` in order to augment and generate a specific redux app state slice --
+this is the bread and butter here.
 
-The `createActions` method accepts an object the following named parameters:
+Example @
+`${rootSrc}/modules/tasks/tasksSlice.js`
+```js
+import { createStateSlice } from 'redux-wings';
+import getTasks from 'api'; // async function
+
+const initialReducerState = {
+
+    tasks: [],
+
+    // auto-generated/managed by creating the
+    // async action of "tasks", but listed for
+    // clarity's sake
+
+    getTasksState: 'idle'
+};
+
+const { actions, reducer } = createStateSlice({
+    namespace: 'tasks',
+    initialReducerState,
+    actions: {
+
+        // auto-generates the constants:
+
+        // 'tasks/GET_TASKS_REQUEST'
+        // 'tasks/GET_TASKS_SUCCESS',
+        // 'tasks/GET_TASKS_ERROR'
+
+        // as well as the actions
+        // getTasksRequest,
+
+        // and appends these to output actions
+
+        asyncRequest: getTasks,
+        asyncReducers: {
+
+            // note that we do not need to do anything
+            // to update getTasksState, this will auto
+            // set itself to 'success' here
+
+            success: (state, { type, payload }) => {
+                return {
+                    ...state,
+                    todos: payload
+                }
+            },
+
+            // getTasksState also auto-updates itself to
+            // "error" here, and same for "request"
+
+            error: (state, { type, payload }) => {
+                return {
+                    ...state,
+                    todos: []
+                }
+            },
+
+            // getTasksState also auto-updates itself to
+            // "error" here, and same for "request"
+
+            request: (state, { type, payload }) => {
+                return {
+                    ...state,
+                    todos: []
+                }
+            }
+        }
+    }
+});
+```
+
+
 
 
 **`sliceNamespace`** `: String`
@@ -39,54 +111,6 @@ A list of actions either specified as a *camelCase* string representing the acti
 If specified as a `String`, will automatically generate namespace of action constant in *UPPER_SNAKE_CASE*, as well as a default *camelCase*'d function which will optionally just funnel a payload if available to the listening reducer when action dispatched.
 
 If specified as an object, it will take an interface which would represent an object containing `namespace` (*camelCase*'d) and optionally if you would like to auto-generate asynchronous behavior as well as `XXX_SUCCESS`, `XXX_ERROR` and `XXX_REQUEST` boilerplate, `requestHandler` and `stateVariable`. These are used when we generate an `asyncReducer` (seen in final example in later section) which auto-augments functionality to toggle your `stateVariable` specified automatically.
-
-Example:
-```js
-import { createActions } from 'redux-wings';
-import api from 'my-module/api';
-
-const { actions, asyncReducer } = createActions({
-    sliceNamespace : 'session',
-    actions : [
-
-        // the following entry creates
-        // an action of 'login' which generates
-        // actions.LOGIN_REQUEST,
-        // actions.LOGIN_SUCCESS,
-        // actions.LOGIN_ERROR for constant to
-        // check in a reducer
-
-        // also, an actions.loginRequest()
-        // var which will automatically dispatch
-        // these on init/success/error, and toggle
-        // the 'loginRequest' variable
-        {
-            namespace : 'login',
-
-            // a Promise creator which calls an API,
-            // and on failure will trigger state to
-            // change along with actions
-
-            loginRequest : api.login,
-
-            // indicate that we want to correlate
-            // LOGIN_REQUEST action with setting
-            // loginRequestState to SUCCESS/PROCESSING/
-            // ERROR dependent on action ran.
-
-            stateVariable : 'loginRequestState'
-        },
-
-        // specifying a string as follows will
-        // simply creates actions.LOGOUT constant
-        // as well as actions.logout() action
-        // creator that takes an optional payload
-        // parameter
-
-        'logout'
-    ]
-});
-```
 
 ### `AsyncStates : IDLE | ERROR | PROCESSING | SUCCESS` ###
 
@@ -121,145 +145,14 @@ or
 import { AsyncStates } from 'redux-wings';
 ```
 
-### `composeReducers(reducer1, reducer2(, ...otherReducers))` ###
-
-Similar to `redux`'s `compose` function, but tailored for reducers to support unlimited function parameters (in this sense what we care about is `state` and `payload` params). This would allow us to compose one reducer slice from different functions and is a very streamline way to split up reducer functions in Redux.
-
-Example:
-
-```js
-import { combineReducers } from 'redux'
-import { composeReducers } from 'redux-wings'
-import session from './modules/session'
-import users from './modules/users'
-import misc from './modules/misc'
-
-// compose our session reducer to contain
-// "loginState" as defined in sessionActions.js
-
-const sessionReducer = composeReducers(session.actions.asyncReducer, session.reducer);
-
-export default combineReducers({
-    session  : sessionReducer,
-    users    : users.reducer,
-    feedback : feedback.reducer
-});
-```
+Note that these are simply strings of `idle`, `processing`, `success` or `error`. The constants are provided to help centralize or prevent errors.
 
 **Important Note:** to properly process your existing state without declaring your async variable twice, the asyncReducer must be specified first
 (`composeReducer` actually processes reducer arguments from right-to-left).
 
 ## Usage
 
-Below is an example of generating actions painlessly for
-logging in and logging out.
-
-So lets say in our `actions.js` (part of our session ducks module at `[root]/modules/session/` folder),
-we wish to generate actions that handle our login state as well as track how the request is going.
-
-We could do that via the following:
-
-
-**`modules/session/sessionActions.js`**
-```js
-import { createActions } from 'redux-wings'
-import api from 'my-app/api'
-import appHistory from 'utils/appHistory'
-
-// creates a new set of Redux actions
-// for asynchronously logging in within
-// "session" slice and then a standalone
-// action type/action creator for logging out
-
-// also, by providing "reducerVariable" to
-// any async actions, we can get a handy
-// reducer function that transforms our
-// reducer state to contain the new variable
-// at given state variable if necessary
-
-const { actions, asyncReducer } = createActions({
-    sliceNamespace : 'session',
-    actions : [
-        {
-            namespace : 'login',
-            requestHandler ({ username, password }) {
-                return api.login({ username, password })
-                    .then( result => new Promise((resolve, reject) => {
-
-                        // re-route user to landing page
-                        // before resolving login success
-
-                        appHistory.goTo('/welcome');
-                        resolve(result);
-
-                        // "session/LOGIN_SUCCESS"
-                        // is dispatched
-                        // automatically afterwards,
-                        // but if we get a failed action,
-                        // or we reject anything,
-                        // "session/LOGIN_ERROR"
-                        // is dispatched
-
-                    }));
-            },
-
-            // will cause reducers variable being output
-            // to attach AsyncStates to `loginState` in
-            // reducer for return object
-
-            stateVariable : 'loginState'
-        },
-
-        // creates action dispatcher +
-        // "session/LOGOUT" type
-        // which can optionally take
-        // a payload
-
-        'logout'
-    ]
-});
-
-// we now have access to all of the following!
-
-const  {
-    loginRequest,
-    logout,
-    LOGIN_REQUEST,
-    LOGIN_SUCCESS,
-    LOGIN_ERROR,
-    LOGOUT,
-    asyncReducer
-} = actions;
-
-// async reducer will now also be available
-// to easily plug in our loginState variable
-// functionality!
-```
-
-Continuing the above example, when combining our reducers using `combineReducers`, we can simply compose our reducer transformation functions using `composeReducers` to easily introduce our asynchronous variables without the boilerplate of repeating ourselves for every async action.
-
-**`reducers.js`**
-```js
-import { combineReducers } from 'redux'
-import { composeReducers } from 'redux-wings'
-import session from './modules/session'
-import users from './modules/users'
-import misc from './modules/misc'
-
-// compose our session reducer to contain "loginState"
-// as defined in sessionActions.js
-
-const sessionReducer = composeReducer(
-    session.actions.asyncReducer,
-    session.reducer
-);
-
-export default combineReducers({
-    session  : sessionReducer,
-    users    : users.reducer,
-    feedback : feedback.reducer
-});
-```
+TODO: document new version usage
 
 ## Contributing
 
